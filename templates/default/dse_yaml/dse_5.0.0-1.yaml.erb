@@ -781,8 +781,8 @@ graph:
   gremlin_server:
     maxContentLength: 65536000
     maxChunkSize: 4096000
-    host: localhost
-    port: 8182
+    host: <%= node[:graph][:host] %>
+    port: <%= node[:graph][:port] %> #8182
     serializers:
       - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry], classResolverSupplier: com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider }}
       - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { serializeResultToString: true }}

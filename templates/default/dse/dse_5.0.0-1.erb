@@ -14,6 +14,13 @@ HADOOP_ENABLED=1
 HADOOP_ENABLED=0
 <% end %>
 
+# enable this to start the dse graph service on this machine.
+<% if node[:cassandra][:graph] %>
+GRAPH_ENABLED=1
+<% else %>
+GRAPH_ENABLED=0
+<% end %>
+
 # enable this to set the replication factor for CFS.  Note that this will only
 # have an effect the first time a cluster is started with HADOOP_ENABLED=1 and
 # after that will be a no-op. Defaults to 1.
