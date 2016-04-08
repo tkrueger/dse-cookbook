@@ -9,9 +9,6 @@
 # one logical cluster from joining another.
 cluster_name: '<%= node[:cassandra][:cluster_name] %>' #'Test Cluster'
 
-# TODO is auto_bootstrap still a thing?
-#auto_bootstrap: <%= node[:cassandra][:auto_bootstrap].to_s != 'false' %>
-
 # This defines the number of tokens randomly assigned to this node on the ring
 # The more tokens, relative to other nodes, the larger the proportion of data
 # that this node will store. You probably want all nodes to have the same number
@@ -27,7 +24,6 @@ cluster_name: '<%= node[:cassandra][:cluster_name] %>' #'Test Cluster'
 # multiple tokens per node, see http://wiki.apache.org/cassandra/Operations
 num_tokens: <%=node[:cassandra][:num_tokens]%> # 128
 
-# TODO this is new
 # Triggers automatic allocation of num_tokens tokens for this node. The allocation
 # algorithm attempts to choose tokens in a way that optimizes replicated load over
 # the nodes in the datacenter for the replication strategy used by the specified
@@ -797,10 +793,9 @@ request_timeout_in_ms: <%= node['cassandra']['request_timeout_in_ms'] %> # 10000
 # and the times are synchronized between the nodes.
 cross_node_timeout: false
 
-# Enable socket timeout for streaming operation.
-# When a timeout occurs during streaming, streaming is retried from the start
-# of the current file. This _can_ involve re-streaming an important amount of
-# data, so you should avoid setting the value too low.
+# Set socket timeout for streaming operation.
+# The stream session is failed if no data is received by any of the
+# participants within that period.
 # Default value is 3600000, which means streams timeout after an hour.
 # streaming_socket_timeout_in_ms: 3600000
 
@@ -1003,3 +998,92 @@ enable_scripted_user_defined_functions: false
 # below their system default. The sysinternals 'clockres' tool can confirm your system's default
 # setting.
 windows_timer_interval: 1
+concurrent_counter_writes: 32
+
+
+# Maximum size of the counter cache in memory.
+#
+# Counter cache helps to reduce counter locks' contention for hot counter cells.
+# In case of RF = 1 a counter cache hit will cause Cassandra to skip the read before
+# write entirely. With RF > 1 a counter cache hit will still help to reduce the duration
+# of the lock hold, helping with hot counter cell updates, but will not allow skipping
+# the read entirely. Only the local (clock, count) tuple of a counter cell is kept
+# in memory, not the whole counter, so it's relatively cheap.
+#
+# NOTE: if you reduce the size, you may not get you hottest keys loaded on startup.
+#
+# Default value is empty to make it "auto" (min(2.5% of Heap (in MB), 50MB)). Set to 0 to disable counter cache.
+# NOTE: if you perform counter deletes and rely on low gcgs, you should disable the counter cache.
+counter_cache_size_in_mb:
+
+# Duration in seconds after which Cassandra should
+# save the counter cache (keys only). Caches are saved to saved_caches_directory as
+# specified in this configuration file.
+#
+# Default is 7200 or 2 hours.
+counter_cache_save_period: 7200
+
+# Number of keys from the counter cache to save
+# Disabled by default, meaning all keys are going to be saved
+# counter_cache_keys_to_save: 100
+
+
+# Total permitted memory to use for memtables. Cassandra will stop
+# accepting writes when the limit is exceeded until a flush completes,
+# and will trigger a flush based on memtable_cleanup_threshold
+# If omitted, Cassandra will set both to 1/4 the size of the heap.
+# memtable_heap_space_in_mb: 2048
+# memtable_offheap_space_in_mb: 2048
+
+# Ratio of occupied non-flushing memtable size to total permitted size
+# that will trigger a flush of the largest memtable.  Lager mct will
+# mean larger flushes and hence less compaction, but also less concurrent
+# flush activity which can make it difficult to keep your disks fed
+# under heavy write load.
+#
+# memtable_cleanup_threshold defaults to 1 / (memtable_flush_writers + 1)
+# memtable_cleanup_threshold: 0.11
+
+# Specify the way Cassandra allocates and manages memtable memory.
+# Options are:
+#   heap_buffers:    on heap nio buffers
+#   offheap_buffers: off heap (direct) nio buffers
+#   offheap_objects: native memory, eliminating nio buffer heap overhead
+memtable_allocation_type: heap_buffers
+
+
+# A fixed memory pool size in MB for for SSTable index summaries. If left
+# empty, this will default to 5% of the heap size. If the memory usage of
+# all index summaries exceeds this limit, SSTables with low read rates will
+# shrink their index summaries in order to meet this limit.  However, this
+# is a best-effort process. In extreme conditions Cassandra may need to use
+# more than this amount of memory.
+index_summary_capacity_in_mb:
+
+# How frequently index summaries should be resampled.  This is done
+# periodically to redistribute memory from the fixed-size pool to sstables
+# proportional their recent read rates.  Setting to -1 will disable this
+# process, leaving existing index summaries at their current sampling level.
+index_summary_resize_interval_in_minutes: 60
+
+
+#
+# If you choose to specify the interface by name and the interface has an ipv4 and an ipv6 address
+# you can specify which should be chosen using rpc_interface_prefer_ipv6. If false the first ipv4
+# address will be used. If true the first ipv6 address will be used. Defaults to false preferring
+# ipv4. If there is only one address it will be selected regardless of ipv4/ipv6.
+# rpc_interface: eth1
+# rpc_interface_prefer_ipv6: false
+
+
+# When compacting, the replacement sstable(s) can be opened before they
+# are completely written, and used in place of the prior sstables for
+# any range that has been written. This helps to smoothly transfer reads
+# between the sstables, reducing page cache churn and keeping hot rows hot
+sstable_preemptive_open_interval_in_mb: 50
+
+
+# How long the coordinator should wait for counter writes to complete
+counter_write_request_timeout_in_ms: 5000
+
+
