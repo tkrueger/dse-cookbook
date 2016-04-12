@@ -193,15 +193,13 @@ shard_transport_options:
 # and stay with the "http" one, either comment it out or set it to -1. Once every
 # node in the cluster is running DSE 5.0, requests coordinated by this node will
 # no longer contact other nodes on this port, but will instead use the new binary
-# protocol bound to "message_server_port". This option will be removed in a future
+# protocol. This option will be removed in a future
 # release of DSE.
     netty_server_port: 8984
 #
-# The TCP listen port for the second-generation inter-node message server. Once every
-# node in the cluster is running DSE 5.0, requests coordinated by this node will
-# only use this port to communicate with other nodes.
-    message_server_port: 8985
-#
+# Note that the following settings applies only to the legacy Netty transport.
+# Since DSE 5.0, the common messaging service is used and the configuration
+# options for it are available at internode_messaging_options.
 # The number of server acceptor threads (default is number of available processors).
 #   netty_server_acceptor_threads:
 # The number of server worker threads (default is number of available processors * 8).
@@ -212,8 +210,6 @@ shard_transport_options:
 #   netty_client_max_connections:
 # The cumulative shard request timeout, in milliseconds (default is 60000).
 #   netty_client_request_timeout:
-# The maximum length of a Message frame, in MB (default is 256)
-#   netty_max_frame_length_in_mb:
 #
 # Options specific to the "http" transport type.
 #
@@ -223,6 +219,15 @@ shard_transport_options:
 # Notice these settings are valid across Solr cores.
 #   http_shard_client_conn_timeout: 0
 #   http_shard_client_socket_timeout: 0
+
+# Solr index encryption options.
+solr_encryption_options:
+# Whether shared Solr decryption cache should be allocated off JVM heap.
+# Default is off heap allocation (true).
+#    decryption_cache_offheap_allocation: true
+# The maximum size of shared Solr decryption cache, in MB.
+# Default is 256 MB.
+#    decryption_cache_size_in_mb: 256
 
 # Solr indexing settings
 #
@@ -538,7 +543,7 @@ dsefs_options:
 
   # Set of directories for storing the file data. 'dir' attribute is mandatory.
   #     - dir: /var/lib/dsefs
-  #       performance_pts: 1.0
+  #       storage_weight: 1.0
   #       min_free_space: 5368709120
   #     - dir: /other/device
   #       storage_weight: 1.5
@@ -669,8 +674,8 @@ audit_logging_options:
 # system.paxos), hints files and Cassandra commit logs are encrypted with the
 # encryption settings below.
 #
-# If Solr index encryption is enabled, DSE search commit log and Solr index files are
-# also encrypted with the settings blow.
+# If Solr index encryption is enabled, Solr index files are also encrypted with the settings below.
+# If backing C* table encryption is enabled, DSE search commit log is encrypted with settings below.
 #
 # When enabling system table encryption on a node with existing data, run
 # `nodetool upgradesstables -a` on the listed tables to encrypt existing data
@@ -805,7 +810,6 @@ graph:
   gremlin_server:
     maxContentLength: 65536000
     maxChunkSize: 4096000
-    host: <%= node[:graph][:host] %>
     port: <%= node[:graph][:port] %> #8182
     serializers:
       - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry], classResolverSupplier: com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider }}
@@ -822,6 +826,7 @@ graph:
 # Configuration of the internal messaging service used by several components of the system.
 internode_messaging_options:
   port: 8609
+  # frame_length_in_mb: 256
   # server_acceptor_threads: 8
   # server_worker_threads: 16
   # client_max_connections: 100
