@@ -269,6 +269,11 @@ JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
 JVM_OPTS="$JVM_OPTS -Dcassandra.metricsReporterConfigFile=cassandra-metrics.yaml"
 <% end %>
 
+# Prometheus metrics exporter
+<% if node['cassandra']['prometheus_metrics']['enabled'] %>
+JVM_OPTS="$JVM_OPTS -javaagent:/usr/share/cassandra/<%= node['cassandra']['prometheus_metrics']['jar_name'] %>=<%= node['cassandra']['prometheus_metrics']['port'] %>:<%= node['cassandra']['dse']['conf_dir'] %>/cassandra/cassandra-prometheus-metrics.yaml"
+<% end %>
+
 # enable the old dse state model by default. After the upgrade is done
 # or after a fresh install, please comment this line out
 #JVM_OPTS="$JVM_OPTS -Denable-old-dse-state=true"

@@ -221,3 +221,28 @@ describe 'dse with node[\'cassandra\'][\'dse\'][\'internode_encryption\'] set to
     )
   end
 end
+
+describe 'dse with node[\'cassandra\'][\'prometheus_metrics\'][\'active\'] set to \'true\'' do
+  cached(:chef_run) do
+    ChefSpec::ServerRunner.new do |node|
+      node.set['cassandra']['prometheus_metrics']['enabled'] = 'true'
+      node.set['cassandra']['prometheus_metrics']['config'] = {test: 'content'}
+    end.converge('dse')
+  end
+
+  it 'includes the dse::prometheus_metrics recipe' do
+    expect(chef_run).to include_recipe('dse::prometheus_metrics')
+  end
+
+  it 'downloads the agent jarfile' do
+    expect(chef_run).to create_remote_file('/usr/share/cassandra/jmx_prometheus_javaagent-0.6.jar')
+  end
+
+  it 'attaches the java agent' do
+    expect(chef_run).to render_file('/etc/dse/cassandra/cassandra-env.sh').with_content /^# Prometheus metrics exporter$/
+  end
+
+  it 'configures the agent' do
+    expect(chef_run).to render_file('/etc/dse/cassandra/cassandra-prometheus-metrics.yaml').with_content 'test: content'
+  end
+end
