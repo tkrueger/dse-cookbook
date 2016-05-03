@@ -121,3 +121,9 @@ default['cassandra']['metrics_reporter']['jar_url'] = 'http://search.maven.org/r
 default['cassandra']['metrics_reporter']['sha256sum'] = '6b4042aabf532229f8678b8dcd34e2215d94a683270898c162175b1b13d87de4'
 default['cassandra']['metrics_reporter']['jar_name'] = 'metrics-graphite-2.2.0.jar'
 default['cassandra']['metrics_reporter']['config'] = {}
+
+# Prometheus metrics exporter
+default['cassandra']['prometheus_metrics']['jar_name'] = "jmx_prometheus_javaagent-0.6.jar"
+default['cassandra']['prometheus_metrics']['jar_url'] = 'https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.6/jmx_prometheus_javaagent-0.6.jar'
+default['cassandra']['prometheus_metrics']['port'] = 7070
+default['cassandra']['prometheus_metrics']['config'] = {}

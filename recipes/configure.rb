@@ -100,3 +100,4 @@ end
 
 # metrics?
 include_recipe 'dse::metrics' if node['cassandra']['metrics_reporter']['enabled']
+include_recipe 'dse::prometheus_metrics' if node['cassandra']['prometheus_metrics']['enabled']
