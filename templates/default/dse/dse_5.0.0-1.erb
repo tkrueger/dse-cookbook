@@ -6,44 +6,50 @@
 # JMX-to-web bridge install libmx4j-java and uncomment the following.
 #EXTRA_CLASSPATH="/usr/share/java/mx4j-tools.jar"
 
-# enable this to start Hadoop's JobTracker and/or TaskTrackers on this machine.
-# If left disabled, this will act as a regular Cassandra node.
+# Start the node in Hadoop mode
 <% if node[:cassandra][:hadoop] %>
 HADOOP_ENABLED=1
 <% else %>
 HADOOP_ENABLED=0
 <% end %>
 
-# enable this to set the replication factor for CFS.  Note that this will only
-# have an effect the first time a cluster is started with HADOOP_ENABLED=1 and
-# after that will be a no-op. Defaults to 1.
+# Enable the DSE Graph service on this node
+<% if node[:cassandra][:graph] %>
+GRAPH_ENABLED=1
+<% else %>
+GRAPH_ENABLED=0
+<% end %>
+
+# Set the replication factor for CFS.  Note that this will only have an effect
+# the first time a cluster is started with Hadoop or Spark enabled; after that
+# it will be a no-op. Defaults to 1.
 #CFS_REPLICATION_FACTOR=1
 
-# enable this to start Solr search indexing on this machine.  If left disabled,
-# this will act as a regular Cassandra node.
+# Start the node in DSE Search mode
 <% if node[:cassandra][:solr] %>
 SOLR_ENABLED=1
 <% else %>
 SOLR_ENABLED=0
 <% end %>
 
-# enable thist to start Spark integration. If left disabled, this
-# will act as a regular Cassandra node.
+# Start the node in Spark mode
 <% if node[:cassandra][:spark] %>
 SPARK_ENABLED=1
 <% else %>
 SPARK_ENABLED=0
 <% end %>
 
-# enabled this to start CFS; it is required only if you want to start CFS without
-# Hadoop/Spark trackers.
+# Enable this to start CFS; CFS is automatically started on any node started
+# with Spark or Hadoop; setting this to 1 enables CFS regardless of the node
+# type
 CFS_ENABLED=0
 
-# Install root
+# Determine install root location (applicable for standalone installer or
+# Debian/RedHat packages; not used in tarball installs)
 if [ -d /usr/share/dse ]; then
     export DSE_HOME=/usr/share/dse
 fi
-# Set this to your install location and remove the leading hashsign
+# Set this if you've installed to a location different from the default
 #DSE_HOME=your_install_location
 
 # Location of log output
@@ -53,7 +59,7 @@ OUTPUT_FILE="/var/log/cassandra/output.log"
 CASSANDRA_CONF=/etc/dse/cassandra
 
 # Set the PID file location here
-PIDFILE=/var/run/$NAME/$NAME.pid
+PIDFILE=/var/run/$NODEID/$NODEID.pid
 
 # Where do Hadoop log files go? This will override the default
 #HADOOP_LOG_DIR=
@@ -61,13 +67,14 @@ PIDFILE=/var/run/$NAME/$NAME.pid
 # Where do Tomcat log files go? This will override the default
 #TOMCAT_LOGS=
 
-# Ths user to use for the service
+# The user to use for the service
 CASSANDRA_USER=<%= node[:cassandra][:user] %>
 
-# Ths group to use for the service
+# The group to use for the service
 CASSANDRA_GROUP=<%= node[:cassandra][:group] %>
 
-# Spark home directory
+# Set this if you've installed DSE into a different location from the default
+# (Note: this refers to DSE Spark, not open-source Spark)
 #SPARK_HOME=your_spark_install_location
 
 # Spark configuration files location

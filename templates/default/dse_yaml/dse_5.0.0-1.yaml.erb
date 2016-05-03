@@ -193,15 +193,13 @@ shard_transport_options:
 # and stay with the "http" one, either comment it out or set it to -1. Once every
 # node in the cluster is running DSE 5.0, requests coordinated by this node will
 # no longer contact other nodes on this port, but will instead use the new binary
-# protocol bound to "message_server_port". This option will be removed in a future
+# protocol. This option will be removed in a future
 # release of DSE.
     netty_server_port: 8984
 #
-# The TCP listen port for the second-generation inter-node message server. Once every
-# node in the cluster is running DSE 5.0, requests coordinated by this node will
-# only use this port to communicate with other nodes.
-    message_server_port: 8985
-#
+# Note that the following settings applies only to the legacy Netty transport.
+# Since DSE 5.0, the common messaging service is used and the configuration
+# options for it are available at internode_messaging_options.
 # The number of server acceptor threads (default is number of available processors).
 #   netty_server_acceptor_threads:
 # The number of server worker threads (default is number of available processors * 8).
@@ -212,8 +210,6 @@ shard_transport_options:
 #   netty_client_max_connections:
 # The cumulative shard request timeout, in milliseconds (default is 60000).
 #   netty_client_request_timeout:
-# The maximum length of a Message frame, in MB (default is 256)
-#   netty_max_frame_length_in_mb:
 #
 # Options specific to the "http" transport type.
 #
@@ -223,6 +219,15 @@ shard_transport_options:
 # Notice these settings are valid across Solr cores.
 #   http_shard_client_conn_timeout: 0
 #   http_shard_client_socket_timeout: 0
+
+# Solr index encryption options.
+solr_encryption_options:
+# Whether shared Solr decryption cache should be allocated off JVM heap.
+# Default is off heap allocation (true).
+#    decryption_cache_offheap_allocation: true
+# The maximum size of shared Solr decryption cache, in MB.
+# Default is 256 MB.
+#    decryption_cache_size_in_mb: 256
 
 # Solr indexing settings
 #
@@ -287,8 +292,8 @@ shard_transport_options:
 #
 # cql_solr_query_executor_threads: 2
 #
-# Max time in milliseconds to wait for each row to be read from Cassandra during
-# CQL Solr queries.
+# Max time in milliseconds to wait for either each row (pre-5.0) or all rows (5.0 onwards)
+# to be read from Cassandra during CQL Solr queries.
 # Default is 10000 (10 seconds).
 #
 # cql_solr_query_row_timeout: 10000
@@ -308,9 +313,14 @@ graph_events:
   ttl_seconds: 600
 
 # CQL slow log settings
+#  threshold:        t > 1        Log queries taking longer than t milliseconds
+#                    0 <= t <= 1  Log queries above t percentile
+#  minimum_samples:  initial number of queries before percentile filter becomes active
+
 cql_slow_log_options:
     enabled: <%= node['cassandra']['dse']['cql_slow_log_options']['enabled'] %>
-    threshold_ms: <%= node['cassandra']['dse']['cql_slow_log_options']['threshold_ms'] %>
+    threshold: <%= node['cassandra']['dse']['cql_slow_log_options']['threshold_ms'] %>
+    minimum_samples: <%= node['cassandra']['dse']['cql_slow_log_options']['minimum_samples'] %>
     ttl_seconds: <%= node['cassandra']['dse']['cql_slow_log_options']['ttl_seconds'] %>
 
 # CQL system info tables settings
@@ -476,8 +486,8 @@ initial_spark_worker_resources: 0.7
 spark_shared_secret_bit_length: 256
 
 # Enables Spark security based on shared secret infrastructure. This means enabling mutual authentication of
-# the Spark components as well as encryption of communication channles except Web UI.
-spark_security_enabled: true
+# the Spark components as well as encryption of communication channels except Web UI.
+spark_security_enabled: false
 
 hadoop_options:
   # The maximum number of slots that can be allocated by TaskTracker for running user tasks. By default, this value is
@@ -521,25 +531,31 @@ spark_encryption_options:
 # DSE File System options
 dsefs_options:
   enabled: false
+
   # Keyspace for storing the DSE FS metadata
   keyspace_name: dsefs
+
   # Port for DSE FS clients, the service on this port will be bound to RPC address.
   public_port: 5598
+
   # Port for internode communication, must be not visible from outside of the cluster. It will be bound to listen address.
   private_port: 5599
+
   # Set of directories for storing the file data. 'dir' attribute is mandatory.
   #     - dir: /var/lib/dsefs
-  #       performance_pts: 1.0
+  #       storage_weight: 1.0
   #       min_free_space: 5368709120
   #     - dir: /other/device
-  #       performance_pts: 1.5
+  #       storage_weight: 1.5
   # It is recommended to put them on different physical devices than devices used for Cassandra.
   # Using multiple directories on JBOD improves performance and capacity.
   data_directories:
     - dir: /var/lib/dsefs
-      performance_pts: 1.0
+      # How much data should be placed in this directory relative to other directories in the cluster
+      storage_weight: 1.0
       # Reserved space (in bytes) that is not going to be used for storing blocks
       min_free_space: 5368709120
+
   # # More advanced settings below:
   # # How long DseFs Server is going to wait for services to bootstrap
   # service_startup_timeout_ms: 30000
@@ -590,7 +606,8 @@ audit_logging_options:
   logger: <%= node['cassandra']['dse']['audit_logging_options']['logger'] %>
 
   # Comma separated list of audit event categories to be included or excluded from the audit log.
-  # Categories are: QUERY, DML, DDL, DCL, AUTH, ADMIN
+  # Defaults to including all categories and keyspaces.
+  # Categories are: QUERY, DML, DDL, DCL, AUTH, ADMIN, ERROR
   # Specify either included or excluded categories. Specifying both is an error
   <%= !node['cassandra']['dse']['audit_logging_options']['included_categories'].empty? ? "included_categories: #{node['cassandra']['dse']['audit_logging_options']['included_categories']}" : "# included_categories:" %>
   <%= !node['cassandra']['dse']['audit_logging_options']['excluded_categories'].empty? ? "excluded_categories: #{node['cassandra']['dse']['audit_logging_options']['excluded_categories']}" : "# excluded_categories:" %>
@@ -608,10 +625,10 @@ audit_logging_options:
   cassandra_audit_writer_options:
     # sets the mode the writer runs in.
     #
-    # When run synchonously, a query is not executed until the audit event is successfully written.
+    # When run synchronously, a query is not executed until the audit event is successfully written.
     #
     # When run asynchronously, audit events are queued for writing to the audit table, but are
-    # not neccesarily logged before the query executes. A pool of writer threads consumes the
+    # not necessarily logged before the query executes. A pool of writer threads consumes the
     # audit events from the queue, and writes them to the audit table in batch queries. While
     # this substantially improves performance under load, if there is a failure between when
     # a query is executed, and it's audit event is written to the table, the audit table may
@@ -619,7 +636,7 @@ audit_logging_options:
     # valid options are 'sync' and 'async'
     mode: <%= node['cassandra']['dse']['audit_logging_options']['cassandra_audit_writer_options']['mode'] %>
 
-    # The maxium number of events the writer will dequeue before writing them out to the table. If you're seeing
+    # The maximum number of events the writer will dequeue before writing them out to the table. If you're seeing
     # warnings in your logs about batches being too large, decrease this value. Increasing batch_size_warn_threshold_in_kb
     # in cassandra.yaml is also an option, but make sure you understand the implications before doing so.
     #
@@ -647,12 +664,18 @@ audit_logging_options:
     # the consistency level used to write audit events
     write_consistency: <%= node['cassandra']['dse']['audit_logging_options']['cassandra_audit_writer_options']['write_consistency'] %>
 
+    # Where dropped events are logged
+    # dropped_event_log: /var/log/cassandra/dropped_audit_events.log
+
+    # Partition days into hours by default
+    # day_partition_millis: 3600000
+
 # If enabled, system tables that may contain sensitive information (system.batchlog,
 # system.paxos), hints files and Cassandra commit logs are encrypted with the
 # encryption settings below.
 #
-# If Solr index encryption is enabled, DSE search commit log and Solr index files are
-# also encrypted with the settings blow.
+# If Solr index encryption is enabled, Solr index files are also encrypted with the settings below.
+# If backing C* table encryption is enabled, DSE search commit log is encrypted with settings below.
 #
 # When enabling system table encryption on a node with existing data, run
 # `nodetool upgradesstables -a` on the listed tables to encrypt existing data
@@ -717,9 +740,14 @@ hive_options:
     # socket timeout in milliseconds
     # timeout: 1000
 
-# When 'driver' DSE Search will use pagination (aka cursors) when it detects the driver is using pagination.
-# When 'off' it will ignore the driver's setting and not use pagination. In this case the query parameter 'paging' can override it.
+# When 'driver' DSE Search will use Solr cursor paging when pagination is enabled by the CQL driver.
+#
+# When 'off' DSE Search will ignore the driver's pagination settings and use normal Solr paging unless:
+#   - The current workload is an analytics workload (ex. SearchAnalytics).
+#   - The query parameter 'paging' is set to 'driver'.
+#
 # Default is 'off'
+#
 # cql_solr_query_paging: off
 
 lease_netty_server_port: 10985
@@ -778,11 +806,11 @@ graph:
   #   DseWebSocketChannelizer which includes hooks into DSE audit and authentication features.
   # - graphs: The list of graphs are completely ignored. Graph instances are created when they are
   #   requested.
+  # - host: The host is ignored, it is always equal to rpc_address from cassandra.yaml
   gremlin_server:
     maxContentLength: 65536000
     maxChunkSize: 4096000
-    host: localhost
-    port: 8182
+    port: <%= node[:graph][:port] %> #8182
     serializers:
       - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { ioRegistries: [org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistry], classResolverSupplier: com.datastax.bdp.graph.impl.tinkerpop.io.DseClassResolverProvider }}
       - { className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV1d0, config: { serializeResultToString: true }}
@@ -794,3 +822,12 @@ graph:
           compilerCustomizerProviders:
             "org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.ThreadInterruptCustomizerProvider": []
             "org.apache.tinkerpop.gremlin.groovy.jsr223.customizer.InterpreterModeCustomizerProvider": []
+
+# Configuration of the internal messaging service used by several components of the system.
+internode_messaging_options:
+  port: 8609
+  # frame_length_in_mb: 256
+  # server_acceptor_threads: 8
+  # server_worker_threads: 16
+  # client_max_connections: 100
+  # client_worker_threads: 16
