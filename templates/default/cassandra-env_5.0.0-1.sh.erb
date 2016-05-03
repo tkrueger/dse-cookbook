@@ -339,6 +339,11 @@ JVM_OPTS="$JVM_OPTS -Djava.library.path=$JAVA_LIBRARY_PATH"
 JVM_OPTS="$JVM_OPTS -Dcassandra.metricsReporterConfigFile=cassandra-metrics.yaml"
 <% end %>
 
+<% if node['cassandra']['prometheus_metrics']['enabled'] %>
+# Prometheus metrics exporter
+JVM_OPTS="$JVM_OPTS -javaagent:/usr/share/cassandra/<%= node['cassandra']['prometheus_metrics']['jar_name'] %>=<%= node['cassandra']['prometheus_metrics']['port'] %>:<%= node['cassandra']['dse']['conf_dir'] %>/cassandra/cassandra-prometheus-metrics.yaml"
+<% end %>
+
 JVM_OPTS="$JVM_OPTS $MX4J_ADDRESS"
 JVM_OPTS="$JVM_OPTS $MX4J_PORT"
 JVM_OPTS="$JVM_OPTS $JVM_EXTRA_OPTS"
