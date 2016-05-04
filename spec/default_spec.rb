@@ -242,7 +242,7 @@ describe 'dse with node[\'cassandra\'][\'prometheus_metrics\'][\'active\'] set t
   cached(:chef_run) do
     ChefSpec::ServerRunner.new do |node|
       node.set['cassandra']['prometheus_metrics']['enabled'] = 'true'
-      node.set['cassandra']['prometheus_metrics']['config'] = {test: 'content'}
+      node.set['cassandra']['prometheus_metrics']['config']['data'] = {test: 'content'}
     end.converge('dse')
   end
 

@@ -6,10 +6,11 @@ remote_file "/usr/share/cassandra/#{node['cassandra']['prometheus_metrics']['jar
 end
 
 template "#{node['cassandra']['dse']['conf_dir']}/cassandra/cassandra-prometheus-metrics.yaml" do
-  source 'cassandra-prometheus-metrics.yaml.erb'
+  source node['cassandra']['prometheus_metrics']['config']['template']
+  cookbook node['cassandra']['prometheus_metrics']['config']['cookbook']
   owner node['cassandra']['user']
   group node['cassandra']['group']
   mode 0644
   notifies :restart, "service[#{node['cassandra']['dse']['service_name']}]"
-  variables(:yaml_config => hash_to_yaml_string(node['cassandra']['prometheus_metrics']['config']))
+  variables(:yaml_config => hash_to_yaml_string(node['cassandra']['prometheus_metrics']['config']['data']))
 end
