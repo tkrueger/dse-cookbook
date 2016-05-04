@@ -127,4 +127,6 @@ default['cassandra']['metrics_reporter']['config'] = {}
 default['cassandra']['prometheus_metrics']['jar_name'] = "jmx_prometheus_javaagent-0.6.jar"
 default['cassandra']['prometheus_metrics']['jar_url'] = 'https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.6/jmx_prometheus_javaagent-0.6.jar'
 default['cassandra']['prometheus_metrics']['port'] = 7070
-default['cassandra']['prometheus_metrics']['config'] = {}
+default['cassandra']['prometheus_metrics']['config']['cookbook'] = 'dse'
+default['cassandra']['prometheus_metrics']['config']['template'] = 'cassandra-prometheus-metrics.yaml.erb'
+default['cassandra']['prometheus_metrics']['config']['data'] = {}
