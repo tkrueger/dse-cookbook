@@ -87,6 +87,8 @@ default['cassandra']['CMSInitiatingOccupancyFraction'] = '65'
 default['cassandra']['MaxTenuringThreshold']           = '1'
 default['cassandra']['max_heap_size'] = '8192M'
 default['cassandra']['heap_newsize'] = '800M'
+default['cassandra']['useg1gc'] = false
+default['cassandra']['use_heapnew'] = true
 
 default['cassandra']['authentication']         = false
 default['cassandra']['authorization']          = false
