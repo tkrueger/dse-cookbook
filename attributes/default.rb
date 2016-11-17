@@ -1,5 +1,6 @@
 # Cassandra Default Info
 default['cassandra']['cluster_name']           = 'Test Cluster'
+default['cassandra']['rack_name']           = 'RAC1'
 default['cassandra']['vnodes']                 = true
 default['cassandra']['initial_token']          = ''
 default['cassandra']['num_tokens']             = '256'

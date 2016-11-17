@@ -131,13 +131,19 @@ esac
 
 <% if node['cassandra']['solr'] %>
 MAX_HEAP_SIZE="<%= node['solr']['max_heap_size'] %>"
+<% if node['cassandra']['use_heapnew'] %>
 HEAP_NEWSIZE="<%= node['solr']['heap_newsize'] %>"
+<% end %>
 <% elsif node['cassandra']['hadoop'] %>
 MAX_HEAP_SIZE="<%= node['hadoop']['max_heap_size'] %>"
-HEAP_NEWSIZE="<%= node['hadoop']['heap_newsize'] %>"
+<% if node['cassandra']['use_heapnew'] %>
+HEAP_NEWSIZE="<%= node['solr']['heap_newsize'] %>"
+<% end %>
 <% else %>
 MAX_HEAP_SIZE="<%= node['cassandra']['max_heap_size'] %>"
-HEAP_NEWSIZE="<%= node['cassandra']['heap_newsize'] %>"
+<% if node['cassandra']['use_heapnew'] %>
+HEAP_NEWSIZE="<%= node['solr']['heap_newsize'] %>"
+<% end %>
 <% end %>
 
 if [ "x$MAX_HEAP_SIZE" = "x" ] && [ "x$HEAP_NEWSIZE" = "x" ]; then
