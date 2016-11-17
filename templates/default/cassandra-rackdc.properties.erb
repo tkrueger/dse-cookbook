@@ -24,7 +24,7 @@ dc=solr<%= node['datacenter'] %>
 <% else %>
 dc=<%= node['datacenter'] %>
 <% end %>
-rack=RAC1
+rack=<%= node['cassandra']['rack_name'] %>
 <% end %>
 
 # Add a suffix to a datacenter name. Used by the Ec2Snitch and Ec2MultiRegionSnitch
