@@ -418,8 +418,16 @@ disk_optimization_strategy: <%= node[:cassandra][:disk_optimization_strategy] %>
 # accepting writes when the limit is exceeded until a flush completes,
 # and will trigger a flush based on memtable_cleanup_threshold
 # If omitted, Cassandra will set both to 1/4 the size of the heap.
+<% if node[:cassandra][:disk_optimization_strategy] -%>
+disk_optimization_strategy: <%= node[:cassandra][:memtable_heap_space_in_mb] %>
+<% else -%>
 # memtable_heap_space_in_mb: 2048
+<% end -%>
+<% if node[:cassandra][:disk_optimization_strategy] -%>
+disk_optimization_strategy: <%= node[:cassandra][:memtable_offheap_space_in_mb] %>
+<% else -%>
 # memtable_offheap_space_in_mb: 2048
+<% end -%>
 
 # Ratio of occupied non-flushing memtable size to total permitted size
 # that will trigger a flush of the largest memtable. Larger mct will
