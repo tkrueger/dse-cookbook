@@ -132,6 +132,10 @@ do
 done
 
 # Check what parameters were defined on jvm.options file to avoid conflicts
+<% if node['cassandra']['usg1gc'] %>
+echo $JVM_OPTS | grep -q UseG1GC
+USING_G1=$?
+<% else %>
 echo $JVM_OPTS | grep -q Xmn
 DEFINED_XMN=$?
 echo $JVM_OPTS | grep -q Xmx
@@ -142,6 +146,7 @@ echo $JVM_OPTS | grep -q UseConcMarkSweepGC
 USING_CMS=$?
 echo $JVM_OPTS | grep -q UseG1GC
 USING_G1=$?
+<% end %>
 
 # Override these to set the amount of memory to allocate to the JVM at
 # start-up. For production use you may wish to adjust this for your
@@ -160,13 +165,19 @@ USING_G1=$?
 
 <% if node['cassandra']['solr'] %>
 MAX_HEAP_SIZE="<%= node['solr']['max_heap_size'] %>"
-HEAP_NEWSIZE="<%= node['solr']['heap_newsize'] %>"
+<% if node['cassandra']['use_heapnew'] %>
+HEAP_NEWSIZE="<%= node['cassandra']['heap_newsize'] %>"
+<% end %>
 <% elsif node['cassandra']['hadoop'] %>
 MAX_HEAP_SIZE="<%= node['hadoop']['max_heap_size'] %>"
-HEAP_NEWSIZE="<%= node['hadoop']['heap_newsize'] %>"
+<% if node['cassandra']['use_heapnew'] %>
+HEAP_NEWSIZE="<%= node['cassandra']['heap_newsize'] %>"
+<% end %>
 <% else %>
 MAX_HEAP_SIZE="<%= node['cassandra']['max_heap_size'] %>"
+<% if node['cassandra']['use_heapnew'] %>
 HEAP_NEWSIZE="<%= node['cassandra']['heap_newsize'] %>"
+<% end %>
 <% end %>
 
 # Set this to control the amount of arenas per-thread in glibc
