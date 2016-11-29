@@ -535,7 +535,11 @@ listen_interface: <%= node[:cassandra][:listen_interface] %> #eth0
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
-rpc_address: <%= node[:cassandra][:rpc_address] %> # localhost
+<% if node[:cassandra][:broadcast_address].nil? %>
+broadcast_address: <%= node[:cassandra][:broadcast_address] %> # localhost
+<% else %>
+#broadcast_address: localhost
+<% end %>
 
 # When using multiple physical network interfaces, set this
 # to true to listen on broadcast_address in addition to
