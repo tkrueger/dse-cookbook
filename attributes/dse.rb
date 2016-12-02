@@ -1,4 +1,5 @@
 default['cassandra']['dse']['snitch']           = 'SimpleSnitch'
+default['cassandra']['dse']['use_exact_datacenter_name']           = false
 default['cassandra']['dse']['service_name']     =  'dse'
 default['cassandra']['dse']['conf_dir']         = '/etc/dse'
 default['cassandra']['dse']['lib_dir']         = '/usr/share/dse/cassandra/lib'
