@@ -14,29 +14,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+<% if node['cassandra']['dse']['snitch'].split('.').last.start_with?('GossipingProperty') %>
+
 <% if node['cassandra']['dse']['use_exact_datacenter_name'] %>
-  #set the exact DC name ignoring the info in the snitches
-  dc=<%= node['datacenter'] %>
-<%else %>
-  <% if node['cassandra']['dse']['snitch'].split('.').last.start_with?('GossipingProperty') %>
-  # These properties are used with GossipingPropertyFileSnitch and will
-  # indicate the rack and dc for this node
-  <% if node['cassandra']['hadoop'] %>
-  dc=hadoop<%= node['datacenter'] %>
-  <% elsif node['cassandra']['solr'] %>
-  dc=solr<%= node['datacenter'] %>
-  <% else %>
-  dc=<%= node['datacenter'] %>
-  <% end %>
-  rack=<%= node['cassandra']['rack_name'] %>
-  <% end %>
-
-  # Add a suffix to a datacenter name. Used by the Ec2Snitch and Ec2MultiRegionSnitch
-  # to append a string to the EC2 region name.
-  <% if node['cassandra']['dse']['snitch'].split('.').last.start_with?('Ec2') && !(node['datacenter'] || '').empty? %>
-  dc_suffix=_<%= node['datacenter'] %>
-  <% else %>
-  #dc_suffix=
-  <% end %>
-
+#set the exact DC name ignoring the info in the snitches
+dc=<%= node['datacenter'] %>
+<% else %>
+# These properties are used with GossipingPropertyFileSnitch and will
+# indicate the rack and dc for this node
+<% if node['cassandra']['hadoop'] %>
+dc=hadoop<%= node['datacenter'] %>
+<% elsif node['cassandra']['solr'] %>
+dc=solr<%= node['datacenter'] %>
+<% else %>
+dc=<%= node['datacenter'] %>
 <% end %>
+<% end %>
+rack=<%= node['cassandra']['rack_name'] %>
+<% end %>
+
+# Add a suffix to a datacenter name. Used by the Ec2Snitch and Ec2MultiRegionSnitch
+# to append a string to the EC2 region name.
+<% if node['cassandra']['dse']['snitch'].split('.').last.start_with?('Ec2') && !(node['datacenter'] || '').empty? %>
+dc_suffix=_<%= node['datacenter'] %>
+<% else %>
+#dc_suffix=
+<% end %>
+
