@@ -95,11 +95,11 @@ role_management_options:
 #                users
 authorization_options:
 <% if node[:cassandra][:dse][:authentication_options][:enabled] %>
-    enabled: false
+  enabled: false
 <% else %>
   enabled: false
 <% end %>
-    transitional_mode: disabled
+  transitional_mode: disabled
 
 # Kerberos options
 #
