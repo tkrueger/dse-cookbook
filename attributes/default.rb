@@ -1,10 +1,10 @@
 # Cassandra Default Info
 default['cassandra']['cluster_name']           = 'Test Cluster'
-default['cassandra']['rack_name']           = 'RAC1'
+default['cassandra']['rack_name']              = 'RAC1'
 default['cassandra']['vnodes']                 = true
 default['cassandra']['initial_token']          = ''
 default['cassandra']['num_tokens']             = '256'
-default['cassandra']['solr']		       = false
+default['cassandra']['solr']                   = false
 default['cassandra']['graph']                  = false
 default['cassandra']['hadoop']                 = false
 default['cassandra']['spark']                  = false
