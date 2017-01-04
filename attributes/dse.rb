@@ -106,3 +106,5 @@ default['cassandra']['dse']['system_info_encryption']['cipher_algorithm'] = 'AES
 default['cassandra']['dse']['system_info_encryption']['secret_key_strength'] = 128
 default['cassandra']['dse']['system_info_encryption']['chunk_length_kb'] = 64
 default['cassandra']['dse']['system_info_encryption']['key_name'] = 'system_table_keytab'
+
+default['cassandra']['dse']['authentication_options']['enabled'] = false

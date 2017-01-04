@@ -94,8 +94,8 @@ role_management_options:
 #                authenticated users. They are not enforced against anonymous
 #                users
 authorization_options:
-<% if node[:cassandra][:dse][:authentication_options][:enabled] %>
-  enabled: false
+<% if node['cassandra']['dse']['authentication_options']['enabled'] %>
+  enabled: true
 <% else %>
   enabled: false
 <% end %>
