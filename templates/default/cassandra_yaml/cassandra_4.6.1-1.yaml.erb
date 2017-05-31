@@ -705,9 +705,9 @@ request_scheduler: org.apache.cassandra.scheduler.NoScheduler
 server_encryption_options:
     internode_encryption: <%= node["cassandra"]["dse"]["internode_encryption"] %> # none
     keystore: <%= node["cassandra"]["dse"]["keystore"] %> # resources/dse/conf/.keystore
-    keystore_password: <%= @ssl_password.call %> # cassandra
+    keystore_password: <%= @ssl_password %> # cassandra
     truststore: <%= node["cassandra"]["dse"]["truststore"] %> # resources/dse/conf/.truststore
-    truststore_password: <%= @ssl_password.call %> # cassandra
+    truststore_password: <%= @ssl_password %> # cassandra
     # More advanced defaults below:
     # protocol: TLS
     # algorithm: SunX509
