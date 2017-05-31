@@ -318,7 +318,7 @@ counter_cache_save_period: 7200
 
 # saved caches
 # If not set, the default directory is $DSE_HOME/data/saved_caches.
-saved_caches_directory: <%= File.join(node.cassandra.root_dir, 'saved_caches') %>
+saved_caches_directory: <%= File.join(node['cassandra']['root_dir'], 'saved_caches') %>
 
 # commitlog_sync may be either "periodic" or "batch."
 #
