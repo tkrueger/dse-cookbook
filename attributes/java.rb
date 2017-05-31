@@ -1,5 +1,5 @@
 default['java']['install_flavor'] = 'oracle'
-default['java']['jdk_version'] = '7'
+default['java']['jdk_version'] = '8'
 default['dse']['manage_java'] = true
 
 # download from artifactory if you can
