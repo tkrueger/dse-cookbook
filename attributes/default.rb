@@ -67,7 +67,7 @@ default['cassandra']['thrift_max_message_length_in_mb'] = nil
 default['cassandra']['concurrent_compactors'] = nil
 default['cassandra']['permissions_validity_in_ms'] = 2000
 default['cassandra']['memtable_heap_space_in_mb'] = nil
-default['cassandra']['memtable_offheap_space_in_mb']   = nil
+default['cassandra']['memtable_offheap_space_in_mb'] = nil
 
 # cassandra > 3.0 / dse > 5.0
 default['cassandra']['allocate_tokens_for_keyspace'] = nil
