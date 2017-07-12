@@ -303,7 +303,7 @@ row_cache_save_period: 0
 #
 # Default value is empty to make it "auto" (min(2.5% of Heap (in MB), 50MB)). Set to 0 to disable counter cache.
 # NOTE: if you perform counter deletes and rely on low gcgs, you should disable the counter cache.
-counter_cache_size_in_mb:
+counter_cache_size_in_mb: <% if node[:cassandra][:counter_cache_size_in_mb] %><%= node[:cassandra][:counter_cache_size_in_mb] %><% end %>
 
 # Duration in seconds after which Cassandra should
 # save the counter cache (keys only). Caches are saved to saved_caches_directory as
@@ -420,8 +420,16 @@ disk_optimization_strategy: <%= node[:cassandra][:disk_optimization_strategy] %>
 # accepting writes when the limit is exceeded until a flush completes,
 # and will trigger a flush based on memtable_cleanup_threshold
 # If omitted, Cassandra will set both to 1/4 the size of the heap.
+<% if node[:cassandra][:memtable_heap_space_in_mb] -%>
+memtable_heap_space_in_mb: <%= node[:cassandra][:memtable_heap_space_in_mb] %>
+<% else -%>
 # memtable_heap_space_in_mb: 2048
+<% end -%>
+<% if node[:cassandra][:memtable_offheap_space_in_mb] -%>
+memtable_offheap_space_in_mb: <%= node[:cassandra][:memtable_offheap_space_in_mb] %>
+<% else -%>
 # memtable_offheap_space_in_mb: 2048
+<% end -%>
 
 # Ratio of occupied non-flushing memtable size to total permitted size
 # that will trigger a flush of the largest memtable. Larger mct will
@@ -430,7 +438,11 @@ disk_optimization_strategy: <%= node[:cassandra][:disk_optimization_strategy] %>
 # under heavy write load.
 #
 # memtable_cleanup_threshold defaults to 1 / (memtable_flush_writers + 1)
+<% if node[:cassandra][:memtable_cleanup_threshold] -%>
+memtable_cleanup_threshold: <%= node[:cassandra][:memtable_cleanup_threshold] %>
+<% else -%>
 # memtable_cleanup_threshold: 0.11
+<% end -%>
 
 # Specify the way Cassandra allocates and manages memtable memory.
 # Options are:
@@ -525,7 +537,11 @@ listen_interface: <%= node[:cassandra][:listen_interface] %> #eth0
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
-rpc_address: <%= node[:cassandra][:rpc_address] %> # localhost
+<% if node[:cassandra][:broadcast_address].nil? %>
+broadcast_address: <%= node[:cassandra][:broadcast_address] %> # localhost
+<% else %>
+#broadcast_address: localhost
+<% end %>
 
 # When using multiple physical network interfaces, set this
 # to true to listen on broadcast_address in addition to
@@ -645,6 +661,11 @@ rpc_server_type: sync
 #
 # rpc_min_threads: 16
 # rpc_max_threads: 2048
+<% if node[:cassandra][:rpc_max_threads].nil? %>
+rpc_max_threads: <%= node[:cassandra][:rpc_max_threads] %> # localhost
+<% else %>
+# rpc_max_threads: 2048
+<% end %>
 
 # uncomment to set socket buffer sizes on rpc connections
 # rpc_send_buff_size_in_bytes:
@@ -980,7 +1001,7 @@ client_encryption_options:
 # can be:  all  - all traffic is compressed
 #          dc   - traffic between different datacenters is compressed
 #          none - nothing is compressed.
-internode_compression: dc
+internode_compression: <%= node[:cassandra][:internode_compression] %>
 
 # Enable or disable tcp_nodelay for inter-dc communication.
 # Disabling it will result in larger (but fewer) network packets being sent,
@@ -1000,7 +1021,7 @@ tracetype_repair_ttl: 604800
 # If unset, all GC Pauses greater than gc_log_threshold_in_ms will log at
 # INFO level
 # Adjust the threshold based on your application throughput requirement
-gc_warn_threshold_in_ms: 1000
+gc_warn_threshold_in_ms: <%= node[:cassandra][:gc_warn_threshold_in_ms] %>
 
 # UDFs (user defined functions) are disabled by default.
 # As of Cassandra 3.0 there is a sandbox in place that should prevent execution of evil code.
