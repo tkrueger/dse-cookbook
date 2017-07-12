@@ -132,10 +132,6 @@ do
 done
 
 # Check what parameters were defined on jvm.options file to avoid conflicts
-<% if node['cassandra']['usg1gc'] %>
-echo $JVM_OPTS | grep -q UseG1GC
-USING_G1=$?
-<% else %>
 echo $JVM_OPTS | grep -q Xmn
 DEFINED_XMN=$?
 echo $JVM_OPTS | grep -q Xmx
@@ -146,7 +142,6 @@ echo $JVM_OPTS | grep -q UseConcMarkSweepGC
 USING_CMS=$?
 echo $JVM_OPTS | grep -q UseG1GC
 USING_G1=$?
-<% end %>
 
 # Override these to set the amount of memory to allocate to the JVM at
 # start-up. For production use you may wish to adjust this for your
