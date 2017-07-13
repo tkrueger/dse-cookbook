@@ -7,7 +7,7 @@ RSpec.configure do |config|
 end
 
 describe 'cassandra-env.sh memory settings' do
-  %w(4.7 5.0.4-1).each do |dse_version|
+  %w(4.7 5.0.4-1 5.1.1-1).each do |dse_version|
     def apply_memory_defaults(node)
       node.override['hadoop']['max_heap_size'] = '4g'
       node.override['hadoop']['heap_newsize'] = '2g'

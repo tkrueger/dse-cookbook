@@ -17,7 +17,7 @@ end
 
 describe 'cassandra.yaml' do
   # have to re-test for every version that does not just link the template to the previous one
-  versions_to_test = %w(5.0.0-1 5.0.4-1)
+  versions_to_test = %w(5.0.0-1 5.0.4-1 5.1.1-1)
 
   versions_to_test.each do |version|
     context "for version #{version}" do

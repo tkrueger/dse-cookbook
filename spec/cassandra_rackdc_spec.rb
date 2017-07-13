@@ -7,7 +7,7 @@ RSpec.configure do |config|
 end
 
 describe 'cassandra-rackdc.properties' do
-  %w(4.7 5.0.4-1).each do |dse_version|
+  %w(4.7 5.0.4-1 5.1.1-1).each do |dse_version|
     def run_chef(&additional_configuration)
       ChefSpec::SoloRunner.new do |node|
         yield node unless additional_configuration.nil?
