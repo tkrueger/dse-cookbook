@@ -14,7 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 <% if node['cassandra']['dse']['snitch'].split('.').last.start_with?('GossipingProperty') %>
+
+<% if node['cassandra']['dse']['use_exact_datacenter_name'] %>
+#set the exact DC name ignoring the info in the snitches
+dc=<%= node['datacenter'] %>
+<% else %>
 # These properties are used with GossipingPropertyFileSnitch and will
 # indicate the rack and dc for this node
 <% if node['cassandra']['hadoop'] %>
@@ -24,7 +30,8 @@ dc=solr<%= node['datacenter'] %>
 <% else %>
 dc=<%= node['datacenter'] %>
 <% end %>
-rack=RAC1
+<% end %>
+rack=<%= node['cassandra']['rack_name'] %>
 <% end %>
 
 # Add a suffix to a datacenter name. Used by the Ec2Snitch and Ec2MultiRegionSnitch
@@ -34,3 +41,6 @@ dc_suffix=_<%= node['datacenter'] %>
 <% else %>
 #dc_suffix=
 <% end %>
+
+# Uncomment the following line to make this snitch prefer the internal ip when possible, as the Ec2MultiRegionSnitch does.
+# prefer_local=true

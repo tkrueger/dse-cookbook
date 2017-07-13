@@ -1,5 +1,6 @@
 # Cassandra Default Info
-default['cassandra']['cluster_name']           = 'Test Cluster'
+default['cassandra']['cluster_name'] = 'Test Cluster'
+default['cassandra']['rack_name'] = 'RAC1'
 default['cassandra']['vnodes']                 = true
 default['cassandra']['initial_token']          = ''
 default['cassandra']['num_tokens']             = '256'
@@ -66,6 +67,13 @@ default['cassandra']['thrift_framed_transport_size_in_mb'] = '15'
 default['cassandra']['thrift_max_message_length_in_mb'] = nil
 default['cassandra']['concurrent_compactors'] = nil
 default['cassandra']['permissions_validity_in_ms'] = 2000
+default['cassandra']['memtable_heap_space_in_mb'] = nil
+default['cassandra']['memtable_offheap_space_in_mb'] = nil
+default['cassandra']['memtable_cleanup_threshold']   = nil
+default['cassandra']['rpc_max_threads'] = nil
+default['cassandra']['counter_cache_size_in_mb'] = nil
+default['cassandra']['internode_compression'] = 'dc'
+default['cassandra']['gc_warn_threshold_in_ms'] = 1000
 
 # cassandra > 3.0 / dse > 5.0
 default['cassandra']['allocate_tokens_for_keyspace'] = nil
@@ -80,6 +88,7 @@ default['cassandra']['CMSInitiatingOccupancyFraction'] = '65'
 default['cassandra']['MaxTenuringThreshold']           = '1'
 default['cassandra']['max_heap_size'] = '8192M'
 default['cassandra']['heap_newsize'] = '800M'
+default['cassandra']['use_heapnew'] = true
 
 default['cassandra']['authentication']         = false
 default['cassandra']['authorization']          = false
