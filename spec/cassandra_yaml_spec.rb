@@ -10,27 +10,25 @@ def run_chef(version, &additional_configuration)
   cached(:chef_run) do
     ChefSpec::ServerRunner.new do |node|
       node.override['cassandra']['dse_version'] = version
-      additional_configuration.call(node) unless additional_configuration.nil?
+      yield node unless additional_configuration.nil?
     end.converge('dse')
   end
 end
 
 describe 'cassandra.yaml' do
-
   # have to re-test for every version that does not just link the template to the previous one
   versions_to_test = %w(5.0.0-1 5.0.4-1)
 
   versions_to_test.each do |version|
     context "for version #{version}" do
-
       context 'with default settings' do
         run_chef version
 
         it 'will be rendered' do
           expect(chef_run).to create_template('/etc/dse/cassandra/cassandra.yaml').with(
-              source: "cassandra_yaml/cassandra_#{version}.yaml.erb",
-              owner: 'cassandra',
-              group: 'cassandra'
+            source: "cassandra_yaml/cassandra_#{version}.yaml.erb",
+            owner: 'cassandra',
+            group: 'cassandra'
           )
         end
       end
