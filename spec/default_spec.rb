@@ -155,6 +155,18 @@ describe 'dse with default settings' do
   end
 end
 
+describe 'dse with node[\'cassandra\'][\'dse\'][\'manage_repo\'] = false' do
+  cached(:chef_run) do
+    ChefSpec::ServerRunner.new do |node|
+      node.override['cassandra']['dse']['manage_repo'] = false
+    end.converge('dse')
+  end
+
+  it 'does not add the apt repository to the sources.list' do
+    expect(chef_run).not_to add_apt_repository('datastax')
+  end
+end
+
 describe 'dse with node[\'cassandra\'][\'dse_version\'] >= 5.1.1-1' do
   context 'when using default values' do
     cached(:chef_run) do

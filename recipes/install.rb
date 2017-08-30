@@ -1,6 +1,6 @@
 # This recipe sets up the yum repos, directories, tuning settings, and installs the dse package.
 # Install java
-include_recipe 'dse::_repo'
+include_recipe 'dse::_repo' if node['cassandra']['dse']['manage_repo']
 include_recipe 'java' if node['dse']['manage_java']
 
 # Check for existing dse version and the version chef wants
